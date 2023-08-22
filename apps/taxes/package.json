@@ -65,6 +65,6 @@
   },
   "private": true,
   "saleor": {
-    "schemaVersion": "3.10"
+    "schemaVersion": "3.14"
   }
 }
