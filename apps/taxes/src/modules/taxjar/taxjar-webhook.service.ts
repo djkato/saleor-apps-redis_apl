@@ -2,15 +2,14 @@ import { AuthData } from "@saleor/app-sdk/APL";
 import {
   OrderCancelledEventSubscriptionFragment,
   OrderConfirmedSubscriptionFragment,
-  TaxBaseFragment,
 } from "../../../generated/graphql";
 import { Logger, createLogger } from "../../lib/logger";
+import { CalculateTaxesPayload } from "../../pages/api/webhooks/checkout-calculate-taxes";
 import { ProviderWebhookService } from "../taxes/tax-provider-webhook";
 import { TaxJarCalculateTaxesAdapter } from "./calculate-taxes/taxjar-calculate-taxes-adapter";
 import { TaxJarOrderConfirmedAdapter } from "./order-confirmed/taxjar-order-confirmed-adapter";
 import { TaxJarClient } from "./taxjar-client";
 import { TaxJarConfig } from "./taxjar-connection-schema";
-import { CalculateTaxesPayload } from "../../pages/api/webhooks/checkout-calculate-taxes";
 
 export class TaxJarWebhookService implements ProviderWebhookService {
   client: TaxJarClient;
