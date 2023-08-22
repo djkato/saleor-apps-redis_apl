@@ -5,6 +5,7 @@ import {
 } from "../../../generated/graphql";
 import { Logger, createLogger } from "../../lib/logger";
 import { CalculateTaxesPayload } from "../../pages/api/webhooks/checkout-calculate-taxes";
+import { OrderRefundedPayload } from "../../pages/api/webhooks/order-refunded";
 import { ProviderWebhookService } from "../taxes/tax-provider-webhook";
 import { TaxJarCalculateTaxesAdapter } from "./calculate-taxes/taxjar-calculate-taxes-adapter";
 import { TaxJarOrderConfirmedAdapter } from "./order-confirmed/taxjar-order-confirmed-adapter";
@@ -46,6 +47,10 @@ export class TaxJarWebhookService implements ProviderWebhookService {
   }
 
   async cancelOrder(payload: OrderCancelledEventSubscriptionFragment) {
-    // TaxJar isn't implemented yet
+    // todo: implement
+  }
+
+  async refundOrder(payload: OrderRefundedPayload) {
+    // todo: implement
   }
 }
