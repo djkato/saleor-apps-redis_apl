@@ -1,9 +1,40 @@
+fragment Payment on Payment {
+  transactions {
+    kind
+    amount {
+      ...Money
+    }
+  }
+}
+
 fragment OrderRefundedSubscription on Order {
   id
   avataxId: metafield(key: "avataxId")
+  ...AvataxOrderMetadata
   channel {
     id
     slug
+  }
+  lines {
+    productSku
+  }
+  totalRefunded {
+    ...Money
+  }
+  totalGrantedRefund {
+    ...Money
+  }
+  totalRefundPending {
+    ...Money
+  }
+  grantedRefunds {
+    amount {
+      ...Money
+    }
+    reason
+  }
+  payments {
+    ...Payment
   }
 }
 

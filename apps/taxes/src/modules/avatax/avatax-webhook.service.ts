@@ -1,8 +1,5 @@
 import { AuthData } from "@saleor/app-sdk/APL";
-import {
-  OrderConfirmedSubscriptionFragment,
-  OrderRefundedSubscriptionFragment,
-} from "../../../generated/graphql";
+import { OrderConfirmedSubscriptionFragment } from "../../../generated/graphql";
 import { Logger, createLogger } from "../../lib/logger";
 import { CalculateTaxesPayload } from "../../pages/api/webhooks/checkout-calculate-taxes";
 import { OrderCancelledPayload } from "../../pages/api/webhooks/order-cancelled";
@@ -13,6 +10,7 @@ import { AvataxConfig, defaultAvataxConfig } from "./avatax-connection-schema";
 import { AvataxCalculateTaxesAdapter } from "./calculate-taxes/avatax-calculate-taxes-adapter";
 import { AvataxOrderCancelledAdapter } from "./order-cancelled/avatax-order-cancelled-adapter";
 import { AvataxOrderConfirmedAdapter } from "./order-confirmed/avatax-order-confirmed-adapter";
+import { AvataxOrderRefundedAdapter } from "./order-refunded/avatax-order-refunded-adapter";
 
 export class AvataxWebhookService implements ProviderWebhookService {
   config = defaultAvataxConfig;
@@ -28,7 +26,6 @@ export class AvataxWebhookService implements ProviderWebhookService {
     });
     const avataxClient = new AvataxClient(config);
 
-    refundOrder: (payload: OrderRefundedSubscriptionFragment) => Promise<void>;
     this.config = config;
     this.client = avataxClient;
   }
@@ -56,6 +53,8 @@ export class AvataxWebhookService implements ProviderWebhookService {
   }
 
   async refundOrder(payload: OrderRefundedPayload) {
-    // todo: implement
+    const adapter = new AvataxOrderRefundedAdapter(this.config);
+
+    return adapter.send(payload);
   }
 }

@@ -55,6 +55,8 @@ export type VoidTransactionArgs = {
   companyCode: string;
 };
 
+export type RefundTransactionParams = Parameters<Avatax["refundTransaction"]>[0];
+
 export class AvataxClient {
   private client: Avatax;
 
@@ -111,5 +113,9 @@ export class AvataxClient {
       // https://developer.avalara.com/avatax/filtering-in-rest/
       filter: `code eq ${useCode}`,
     });
+  }
+
+  async refundTransaction(params: RefundTransactionParams) {
+    return this.client.refundTransaction(params);
   }
 }
