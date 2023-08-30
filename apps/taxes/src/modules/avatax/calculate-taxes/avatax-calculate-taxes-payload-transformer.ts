@@ -9,6 +9,7 @@ import { AvataxCalculateTaxesPayloadLinesTransformer } from "./avatax-calculate-
 import { AvataxEntityTypeMatcher } from "../avatax-entity-type-matcher";
 import { taxProviderUtils } from "../../taxes/tax-provider-utils";
 import { CalculateTaxesPayload } from "../../../pages/api/webhooks/checkout-calculate-taxes";
+import { AvataxAddressResolver } from "../order-confirmed/avatax-address-resolver";
 
 export class AvataxCalculateTaxesPayloadTransformer {
   private matchDocumentType(config: AvataxConfig): DocumentType {
@@ -47,6 +48,11 @@ export class AvataxCalculateTaxesPayloadTransformer {
     );
 
     const customerCode = this.resolveCustomerCode(payload);
+    const addressResolver = new AvataxAddressResolver();
+    const addresses = addressResolver.resolve({
+      from: avataxConfig.address,
+      to: payload.taxBase.address!,
+    });
 
     return {
       model: {
@@ -56,10 +62,7 @@ export class AvataxCalculateTaxesPayloadTransformer {
         companyCode: avataxConfig.companyCode ?? defaultAvataxConfig.companyCode,
         // * commit: If true, the transaction will be committed immediately after it is created. See: https://developer.avalara.com/communications/dev-guide_rest_v2/commit-uncommit
         commit: avataxConfig.isAutocommit,
-        addresses: {
-          shipFrom: avataxAddressFactory.fromChannelAddress(avataxConfig.address),
-          shipTo: avataxAddressFactory.fromSaleorAddress(payload.taxBase.address!),
-        },
+        addresses,
         currencyCode: payload.taxBase.currency,
         lines: payloadLinesTransformer.transform(payload.taxBase, avataxConfig, matches),
         date: new Date(),

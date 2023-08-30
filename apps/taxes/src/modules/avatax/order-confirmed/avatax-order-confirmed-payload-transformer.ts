@@ -1,7 +1,6 @@
 import { DocumentType } from "avatax/lib/enums/DocumentType";
 import { OrderConfirmedSubscriptionFragment } from "../../../../generated/graphql";
 import { discountUtils } from "../../taxes/discount-utils";
-import { avataxAddressFactory } from "../address-factory";
 import { AvataxClient, CreateTransactionArgs } from "../avatax-client";
 import { AvataxConfig, defaultAvataxConfig } from "../avatax-connection-schema";
 import { AvataxTaxCodeMatches } from "../tax-code/avatax-tax-code-match-repository";
@@ -10,6 +9,7 @@ import { AvataxEntityTypeMatcher } from "../avatax-entity-type-matcher";
 import { AvataxDocumentCodeResolver } from "../avatax-document-code-resolver";
 import { AvataxCalculationDateResolver } from "../avatax-calculation-date-resolver";
 import { taxProviderUtils } from "../../taxes/tax-provider-utils";
+import { AvataxAddressResolver } from "./avatax-address-resolver";
 
 export const SHIPPING_ITEM_CODE = "Shipping";
 
@@ -41,6 +41,12 @@ export class AvataxOrderConfirmedPayloadTransformer {
       orderId: order.id,
     });
 
+    const addressResolver = new AvataxAddressResolver();
+    const addresses = addressResolver.resolve({
+      from: avataxConfig.address,
+      to: order.shippingAddress!,
+    });
+
     return {
       model: {
         code,
@@ -50,11 +56,7 @@ export class AvataxOrderConfirmedPayloadTransformer {
         companyCode: avataxConfig.companyCode ?? defaultAvataxConfig.companyCode,
         // * commit: If true, the transaction will be committed immediately after it is created. See: https://developer.avalara.com/communications/dev-guide_rest_v2/commit-uncommit
         commit: avataxConfig.isAutocommit,
-        addresses: {
-          shipFrom: avataxAddressFactory.fromChannelAddress(avataxConfig.address),
-          // billing or shipping address?
-          shipTo: avataxAddressFactory.fromSaleorAddress(order.billingAddress!),
-        },
+        addresses,
         currencyCode: order.total.currency,
         email: taxProviderUtils.resolveStringOrThrow(order.user?.email),
         lines: linesTransformer.transform(order, avataxConfig, matches),
