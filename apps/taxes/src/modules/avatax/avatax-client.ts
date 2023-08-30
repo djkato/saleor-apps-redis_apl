@@ -55,7 +55,10 @@ export type VoidTransactionArgs = {
   companyCode: string;
 };
 
-export type RefundTransactionParams = Parameters<Avatax["refundTransaction"]>[0];
+export type RefundTransactionParams = Pick<
+  CreateTransactionModel,
+  "customerCode" | "lines" | "date" | "addresses" | "code" | "companyCode"
+>;
 
 export class AvataxClient {
   private client: Avatax;
@@ -116,6 +119,15 @@ export class AvataxClient {
   }
 
   async refundTransaction(params: RefundTransactionParams) {
-    return this.client.refundTransaction(params);
+    // https://developer.avalara.com/erp-integration-guide/refunds-badge/refunds-with-create-transactions/
+    return this.client.createOrAdjustTransaction({
+      model: {
+        createTransactionModel: {
+          type: DocumentType.ReturnInvoice,
+          commit: true,
+          ...params,
+        },
+      },
+    });
   }
 }

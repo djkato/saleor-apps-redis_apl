@@ -1,7 +1,8 @@
+import { AddressesModel } from "avatax/lib/models/AddressesModel";
 import { AddressFragment } from "../../../../generated/graphql";
+import { taxProviderUtils } from "../../taxes/tax-provider-utils";
 import { avataxAddressFactory } from "../address-factory";
 import { AvataxConfig } from "../avatax-connection-schema";
-import { CreateTransactionModel } from "avatax/lib/models/CreateTransactionModel";
 
 export class AvataxAddressResolver {
   resolve({
@@ -9,11 +10,11 @@ export class AvataxAddressResolver {
     to,
   }: {
     from: AvataxConfig["address"];
-    to: AddressFragment;
-  }): CreateTransactionModel["addresses"] {
+    to: AddressFragment | undefined | null;
+  }): AddressesModel {
     return {
       shipFrom: avataxAddressFactory.fromChannelAddress(from),
-      shipTo: avataxAddressFactory.fromSaleorAddress(to),
+      shipTo: avataxAddressFactory.fromSaleorAddress(taxProviderUtils.resolveOptionalOrThrow(to)),
     };
   }
 }
