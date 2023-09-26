@@ -5,6 +5,7 @@ import { AvataxClient, VoidTransactionArgs } from "../avatax-client";
 import { AvataxConfig } from "../avatax-connection-schema";
 import { ClientLogger } from "../../logs/client-logger";
 import { AvataxOrderCancelledPayloadTransformer } from "./avatax-order-cancelled-payload-transformer";
+import { AvataxErrorNormalizer } from "../avatax-error-normalizer";
 
 export type AvataxOrderCancelledTarget = VoidTransactionArgs;
 
@@ -43,6 +44,8 @@ export class AvataxOrderCancelledAdapter implements WebhookAdapter<OrderCancelle
 
       this.logger.debug(`Successfully voided the transaction of id: ${target.transactionCode}`);
     } catch (error) {
+      const errorNormalizer = new AvataxErrorNormalizer();
+
       this.clientLogger.push({
         event: "[OrderCancelled] voidTransaction",
         status: "error",
@@ -51,6 +54,8 @@ export class AvataxOrderCancelledAdapter implements WebhookAdapter<OrderCancelle
           output: error,
         },
       });
+
+      throw errorNormalizer.normalize(error);
     }
   }
 }

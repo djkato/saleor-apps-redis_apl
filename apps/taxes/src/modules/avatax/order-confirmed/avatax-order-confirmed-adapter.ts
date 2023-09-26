@@ -1,13 +1,14 @@
 import { AuthData } from "@saleor/app-sdk/APL";
 import { OrderConfirmedSubscriptionFragment } from "../../../../generated/graphql";
 import { Logger, createLogger } from "../../../lib/logger";
+import { ClientLogger } from "../../logs/client-logger";
 import { CreateOrderResponse } from "../../taxes/tax-provider-webhook";
 import { WebhookAdapter } from "../../taxes/tax-webhook-adapter";
 import { AvataxClient } from "../avatax-client";
 import { AvataxConfig } from "../avatax-connection-schema";
-import { ClientLogger } from "../../logs/client-logger";
 import { AvataxOrderConfirmedPayloadService } from "./avatax-order-confirmed-payload.service";
 import { AvataxOrderConfirmedResponseTransformer } from "./avatax-order-confirmed-response-transformer";
+import { AvataxErrorNormalizer } from "../avatax-error-normalizer";
 
 type AvataxOrderConfirmedPayload = {
   order: OrderConfirmedSubscriptionFragment;
@@ -68,6 +69,8 @@ export class AvataxOrderConfirmedAdapter
 
       return transformedResponse;
     } catch (error) {
+      const errorNormalizer = new AvataxErrorNormalizer();
+
       this.clientLogger.push({
         event: "[OrderConfirmed] createTransaction",
         status: "error",
@@ -76,7 +79,8 @@ export class AvataxOrderConfirmedAdapter
           output: error,
         },
       });
-      throw error;
+
+      throw errorNormalizer.normalize(error);
     }
   }
 }

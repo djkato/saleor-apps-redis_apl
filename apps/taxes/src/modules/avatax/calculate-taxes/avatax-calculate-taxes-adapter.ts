@@ -8,6 +8,7 @@ import { AvataxConfig } from "../avatax-connection-schema";
 import { ClientLogger } from "../../logs/client-logger";
 import { AvataxCalculateTaxesPayloadService } from "./avatax-calculate-taxes-payload.service";
 import { AvataxCalculateTaxesResponseTransformer } from "./avatax-calculate-taxes-response-transformer";
+import { AvataxErrorNormalizer } from "../avatax-error-normalizer";
 
 export const SHIPPING_ITEM_CODE = "Shipping";
 
@@ -67,6 +68,8 @@ export class AvataxCalculateTaxesAdapter
 
       return transformedResponse;
     } catch (error) {
+      const errorNormalizer = new AvataxErrorNormalizer();
+
       this.clientLogger.push({
         event: "[CalculateTaxes] createTransaction",
         status: "error",
@@ -75,7 +78,7 @@ export class AvataxCalculateTaxesAdapter
           output: error,
         },
       });
-      throw error;
+      throw errorNormalizer.normalize(error);
     }
   }
 }
