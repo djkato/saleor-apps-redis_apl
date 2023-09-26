@@ -8,6 +8,7 @@ import { TaxJarConfig } from "../taxjar-connection-schema";
 import { TaxJarCalculateTaxesPayloadService } from "./taxjar-calculate-taxes-payload-service";
 import { TaxJarCalculateTaxesResponseTransformer } from "./taxjar-calculate-taxes-response-transformer";
 import { ClientLogger } from "../../logs/client-logger";
+import { TaxJarErrorNormalizer } from "../taxjar-error-normalizer";
 
 export type TaxJarCalculateTaxesPayload = {
   taxBase: TaxBaseFragment;
@@ -70,6 +71,8 @@ export class TaxJarCalculateTaxesAdapter
 
       return transformedResponse;
     } catch (error) {
+      const errorNormalizer = new TaxJarErrorNormalizer();
+
       this.clientLogger.push({
         event: "[CalculateTaxes] fetchTaxForOrder",
         status: "error",
@@ -78,7 +81,8 @@ export class TaxJarCalculateTaxesAdapter
           output: error,
         },
       });
-      throw error;
+
+      throw errorNormalizer.normalize(error);
     }
   }
 }

@@ -8,6 +8,7 @@ import { TaxJarConfig } from "../taxjar-connection-schema";
 import { TaxJarOrderConfirmedPayloadService } from "./taxjar-order-confirmed-payload.service";
 import { TaxJarOrderConfirmedResponseTransformer } from "./taxjar-order-confirmed-response-transformer";
 import { ClientLogger } from "../../logs/client-logger";
+import { TaxJarErrorNormalizer } from "../taxjar-error-normalizer";
 
 export type TaxJarOrderConfirmedPayload = {
   order: OrderConfirmedSubscriptionFragment;
@@ -67,6 +68,8 @@ export class TaxJarOrderConfirmedAdapter
 
       return transformedResponse;
     } catch (error) {
+      const errorNormalizer = new TaxJarErrorNormalizer();
+
       this.clientLogger.push({
         event: "[OrderConfirmed] createOrder",
         status: "error",
@@ -75,7 +78,7 @@ export class TaxJarOrderConfirmedAdapter
           output: error,
         },
       });
-      throw error;
+      throw errorNormalizer.normalize(error);
     }
   }
 }
